@@ -1,17 +1,23 @@
-import firebase from 'firebase/app'
-import 'firebase/firestore'
+import firebase from "firebase/app";
+import "firebase/firestore";
+import "firebase/auth";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyASkZbrxaQuYDM-G-MM-Ce59bGTYAL3KrI",
-    authDomain: "mymoney-b4def.firebaseapp.com",
-    projectId: "mymoney-b4def",
-    storageBucket: "mymoney-b4def.appspot.com",
-    messagingSenderId: "953645819347",
-    appId: "1:953645819347:web:829129be8d7e681cd6bb26"
-  };
+  apiKey: "AIzaSyASkZbrxaQuYDM-G-MM-Ce59bGTYAL3KrI",
+  authDomain: "mymoney-b4def.firebaseapp.com",
+  projectId: "mymoney-b4def",
+  storageBucket: "mymoney-b4def.appspot.com",
+  messagingSenderId: "953645819347",
+  appId: "1:953645819347:web:829129be8d7e681cd6bb26",
+};
 
-  firebase.initializeApp(firebaseConfig)
+//init firebase app
+firebase.initializeApp(firebaseConfig);
 
-  const projectFirestore = firebase.firestore()
+//init storage
+const projectFirestore = firebase.firestore();
 
-  export {projectFirestore}
+//init autentification
+const projectAuth = firebase.auth();
+
+export { projectFirestore, projectAuth };

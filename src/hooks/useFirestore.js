@@ -1,6 +1,5 @@
 import { useReducer, useEffect, useState } from "react";
-import { act } from "react-dom/test-utils";
-import { projectFirestore } from "../firebase/config";
+import { projectFirestore, timestamp } from "../firebase/config";
 
 let initialState = {
   document: null,
@@ -12,9 +11,33 @@ let initialState = {
 const firestoreReducer = (state, action) => {
   switch (action.type) {
     case "IS_PENDING":
-      return { ...state, isPending: true };
+      return {
+        document: null,
+        isPending: true,
+        error: null,
+        success: false,
+      };
     case "ADDED_DOCUMENT":
-      return { ...state, isPending: false, document: action.payload };
+      return {
+        isPending: false,
+        document: action.payload,
+        success: true,
+        error: null,
+      };
+    case "DELETED_DOCUMENT":
+      return {
+        isPending: false,
+        document: null,
+        success: true,
+        error: null,
+      };
+    case "ERROR":
+      return {
+        document: null,
+        isPending: false,
+        error: action.payload,
+        success: false,
+      };
     default:
       return state;
   }
@@ -39,17 +62,34 @@ export const useFirestore = (collection) => {
     dispatch({ type: "IS_PENDING" });
 
     try {
-      const addedDocument = await ref.add({ doc });
-      
+      const createdAt = timestamp.fromDate(new Date());
+      const addedDocument = await ref.add({ ...doc, createdAt });
+
       dispatchIfNotCancelled({
         type: "ADDED_DOCUMENT",
         payload: addedDocument,
       });
-    } catch (err) {}
+
+      //logging
+      console.log(addedDocument);
+    } catch (err) {
+      dispatchIfNotCancelled({ type: "ERROR", payload: err.message });
+    }
   };
 
   //delete document from collection
-  const deleteDocument = async (id) => {};
+  const deleteDocument = async (id) => {
+    dispatch({ type: "IS_PENDING" });
+
+    try {
+      await ref.doc(id).delete();
+      dispatchIfNotCancelled({
+        type: "DELETED_DOCUMENT",
+      });
+    } catch (err) {
+      dispatchIfNotCancelled({ type: "ERROR", payload: "Could not delete" });
+    }
+  };
 
   //cleanup function
   useEffect(() => {
